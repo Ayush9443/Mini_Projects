@@ -1,0 +1,46 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+int main() {
+    srand(time(0));  // Seed the random number generator
+
+    int lower, upper;
+    cout << "===== NUMBER GUESSING GAME =====" << endl;
+    cout << "Enter the range:" << endl;
+    cout << "Lower: ";
+    cin >> lower;
+    cout << "Upper: ";
+    cin >> upper;
+
+    int randomNum = lower + (rand() % (upper - lower + 1));  // Generate random number
+
+    int guess;
+    int attempts = 0;
+
+    cout << "\nI've chosen a number between " << lower << " and " << upper << "." << endl;
+    cout << "Try to guess it!" << endl;
+
+    do {
+        cout << "\nEnter your guess: ";
+        cin >> guess;
+        attempts++;
+
+        if (guess == randomNum) {
+            cout << "\n🎉 Congratulations! You guessed the number in " << attempts << " attempts!" << endl;
+        } 
+        else if (guess < randomNum) {
+            cout << "Too low! Try again.";
+        } 
+        else {
+            cout << "Too high! Try again.";
+        }
+    } while (guess != randomNum);
+
+    cout << "\n===================================" << endl;
+    cout << "The correct number was: " << randomNum << endl;
+    cout << "Thanks for playing!" << endl;
+
+    return 0;
+}
