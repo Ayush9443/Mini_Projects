@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deep Thought — Technical Project Management</title>
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#0b2540;background:#f3f6fb}
+    a{color:inherit}
+    button{font-family:inherit}
+
+    .canvas {
+      width: 1440px;
+      max-width: calc(100% - 32px);
+      min-height: 1805px;
+      margin: 24px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 18px 50px rgba(15,23,42,0.12);
+      overflow: hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
+    
+    header.topbar {
+      height:64px;
+      display:flex;
+      align-items:center;
+      padding: 12px 24px;
+      border-bottom: 1px solid #e8eef6;
+      gap:18px;
+      background: linear-gradient(180deg,#ffffff,#fbfdff);
+    }
+    .brand {
+      display:flex; align-items:center; gap:12px;
+    }
+    .brand .logo {
+      width:36px;height:36px;border-radius:6px;background:linear-gradient(135deg,#2b6cff,#5b21b6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;
+    }
+    .brand .title { font-weight:700; font-size:16px; color:#0b2540; }
+    .top-actions { display:flex; gap:12px; align-items:center; margin-left:18px; color:#44566a; font-size:14px; }
+
+    .spacer { flex:1 }
+
+    .submit-btn {
+      background:#0f62fe;color:white;padding:10px 14px;border-radius:8px;border:none;font-weight:700;cursor:pointer;
+      box-shadow: 0 6px 18px rgba(15,98,254,0.16);
+    }
+
+    .page {
+      display:flex;
+      gap:20px;
+      padding:20px 36px 40px 36px;
+      align-items:flex-start;
+    }
+
+    /* Left narrow vertical bar */
+    .left-rail {
+      width:56px;
+      display:flex;flex-direction:column;align-items:center;gap:12px;
+      position:relative;
+    }
+    .left-rail .circle-btn {
+      width:48px;height:48px;border-radius:50%;background:#fff;border:1px solid #e6eef7;display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b2540;box-shadow:0 6px 20px rgba(2,6,23,0.04)
+    }
+    .left-rail .note-rail {
+      writing-mode:vertical-rl; transform:rotate(180deg); background:#0b2540;color:#fff;padding:8px;border-radius:6px;font-size:12px;position:absolute;right:-18px;top:120px;
+    }
+
+    /* Main content center */
+    .main {
+      width: 960px; /* center width */
+      min-height:1400px;
+      color: #0029FF;
+      background:transparent;
+    }
+
+    .page-title {
+      font-size:20px;color:#1b3650;font-weight:800;margin:0 0 8px 0;
+    }
+    .page-sub {
+      color:#6b7b8e;font-size:14px;margin:0 0 20px 0;line-height:1.5;
+      background:#f2f6fb;padding:14px;border-radius:6px;border:1px solid #eaeff6;
+    }
+
+    /* Grid of cards: 2 columns (like screenshot) */
+    .card-grid {
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:22px;
+      margin-top:12px;
+    }
+    .card {
+      background:#fff;border-radius:10px;border:1px solid #e8eef6;padding:14px;box-shadow:0 10px 28px rgba(8,15,30,0.03);
+      display:flex;flex-direction:column;gap:12px;position:relative;
+    }
+    .card .card-head {
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .card .card-head .title {
+      font-weight:700;color:#0b2540;font-size:15px;
+    }
+    .card .card-head .info {
+      width:28px;height:28px;border-radius:6px;background:#0b2540;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;
+    }
+
+    /* video placeholder */
+    .video {
+      width:100%;
+      height:260px;
+      background: linear-gradient(180deg,#0b2540,#17385a);
+      border-radius:8px;
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;
+      position:relative; overflow:hidden;
+    }
+    .video .play {
+      width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;color:#0b2540;font-size:28px;cursor:pointer;
+      box-shadow:0 8px 20px rgba(11,37,64,0.28);
+    }
+
+    .meta-row { font-size:13px;color:#475569;line-height:1.3; background:#fbfdff;padding:10px;border-radius:6px;border:1px solid #eef4fb; }
+
+    /* Thread builder style (textarea cards, buttons) */
+    .thread {
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .thread .sub-row { display:flex;gap:10px; }
+    .thread .box {
+      flex:1;background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #e9f1f8;min-height:72px;font-size:13px;color:#334155;
+    }
+    .thread .controls { display:flex;gap:8px;align-items:center;margin-top:8px }
+    .small-btn { padding:8px 10px;border-radius:8px;border:1px solid #e6eef6;background:#fff;cursor:pointer;font-size:13px; }
+
+    /* Rich editor placeholder */
+    .editor {
+      height:160px;border-radius:6px;border:1px solid #e8eff8;background:#fff;padding:8px;font-size:13px;color:#2b3b4a;
+    }
+
+    /* 4SA and other text blocks */
+    .collapse {
+      border-top:1px dashed #eef4fb;padding-top:12px;
+    }
+    .collapse .row { display:flex;justify-content:space-between;align-items:center;gap:8px }
+
+    /* Footer area spacing */
+    .card .card-footer { display:flex;justify-content:flex-end;gap:8px; margin-top:8px }
+
+    /* Right floating sticky panel / journey board */
+    .right-rail {
+      width:320px;
+      display:flex;flex-direction:column;gap:12px;align-items:flex-end;
+    }
+    .journey-toggle {
+      width:48px;height:48px;border-radius:8px;background:#fff;border:1px solid #e8eef6;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    }
+    .journey-panel {
+      position:sticky; top:120px; width:320px;background:#fff;border-radius:8px;border:1px solid #e8eef6;padding:12px;box-shadow: 0 16px 50px rgba(8,15,30,0.06);
+      display:none; z-index:40;
+    }
+    .journey-panel.show { display:block; }
+
+    .journey-panel h4 { margin:0;font-size:15px;color:#0b2540;font-weight:800;margin-bottom:8px }
+    .journey-panel ul { margin:0;padding:0 0 0 18px;color:#334155 }
+    .journey-panel li { margin:8px 0;font-size:14px }
+
+    /* Modal */
+    .modal-backdrop {
+      position:fixed; inset:0; background:rgba(2,6,23,0.45); display:none; align-items:center; justify-content:center; z-index:80;
+    }
+    .modal-backdrop.show{ display:flex }
+    .modal {
+      width:720px; max-width:94%; background:#fff;border-radius:12px;padding:18px;border:1px solid #eaf2fb; box-shadow:0 30px 80px rgba(2,6,23,0.18)
+    }
+    .modal h3{ margin:0 0 8px 0;font-size:18px;color:#0b2540 }
+    .modal p{ margin:0 0 12px 0;color:#475569 }
+
+    /* tiny responsive */
+    @media (max-width:1200px){
+      .main{width:720px}
+      .card-grid{grid-template-columns:1fr}
+      .right-rail{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas" role="main" aria-label="Deep Thought Canvas">
+    <!-- Topbar -->
+    <header class="topbar" role="banner">
+      <div class="brand" aria-hidden="true">
+        <div class="title">
+  <img src="https://deepthought.education/assets/images/logo/logo.svg" alt="DEEP THOUGHT Logo">
+</div>
+
+      </div>
+
+      <nav class="top-actions" aria-label="Top actions">
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="small-btn" title="Home">🏠</button>
+          <button class="small-btn" title="Notifications">🔔</button>
+          <button class="small-btn" title="Profile">⚙️</button>
+        </div>
+        <!--<div style="margin-left:8px;color:#6b7b8e;font-weight:600">Technical Project Management</div>-->
+      </nav>
+
+      <div class="spacer"></div>
+
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="submit-btn" id="submitTaskBtn">Submit Task</button>
+      </div>
+    </header>
+
+    <!-- Main area -->
+    <div class="page">
+      <!-- Left rail -->
+       <aside class="right-rail" aria-label="left">
+        <div class="journey-toggle" id="journeyToggle" title="Open Journey Board">≡</div>
+
+        <div class="journey-panel" id="journeyPanel" role="region" aria-label="Journey Board">
+          <h4>Journey Board</h4>
+          <ul>
+            <li>Explore the world of management</li>
+            <li>Technical Project Management</li>
+            <li>Threadbuild</li>
+            <li>Structure you pointers</li>
+            <li>4SA Method</li>
+          </ul>
+        </div>
+
+        <div style="width:48px;height:140px"></div>
+      </aside>
+      
+
+      <!-- Center main content -->
+      <main class="main" aria-label="Content">
+        <h1 class="page-title" >Technical Project Management</h1>
+        <p class="page-sub">
+          As a project manager, you play an important role in leading a project through initiation, planning, execution, monitoring, controlling and completion.
+        </p>
+
+        <section class="card-grid" aria-label="Task cards">
+          <!-- Card 1: Video -->
+          <article class="card" id="card-video">
+            <div class="card-head">
+              <div class="title" >Technical Project Management</div>
+              <div class="info">i</div>
+            </div>
+
+            <div class="meta-row">
+              Description: Story of Alignment • Scope of Agility • Specific Accountable • Staggering Approach
+            </div>
+
+            <div class="video" role="img" aria-label="Video placeholder">
+              <div class="play" id="playVideoBtn">▶</div>
+            </div>
+
+            <div class="card-footer">
+              <button class="small-btn" onclick="alert('Watch on YouTube (demo)')">Watch on YouTube</button>
+            </div>
+          </article>
+
+          <!-- Card 2: Threadbuild -->
+          <article class="card" id="card-thread">
+            <div class="card-head">
+              <div class="title">Threadbuild</div>
+              <div class="info">i</div>
+            </div>
+
+            <div class="meta-row">
+              Description: Watch the video and thread build, and jot out key threads while watching that video.
+            </div>
+
+            <div class="thread">
+              <div class="sub-row">
+                <div class="box" contenteditable="true" aria-label="Sub thread input">Enter text here...</div>
+                <div class="box" contenteditable="true" aria-label="Sub interpretation input">Enter interpretation...</div>
+              </div>
+
+              <div class="controls">
+                <button class="small-btn" onclick="addSubThread(this)">+ Sub Thread</button>
+                <div style="flex:1"></div>
+                <select class="small-btn" aria-label="Select category">
+                  <option>Category</option>
+                </select>
+                <select class="small-btn" aria-label="Select process">
+                  <option>Process</option>
+                </select>
+              </div>
+
+              <div class="editor" contenteditable="true" aria-label="Summary for thread">Summary for Thread A...</div>
+            </div>
+          </article>
+
+          <!-- Card 3: Article -->
+          <article class="card" id="card-article">
+            <div class="card-head">
+              <div class="title">Structure You Pointers</div>
+              <div class="info">i</div>
+            </div>
+
+            <div class="meta-row">
+              Description: Write a 400-500 word article from your thread. Publish your understanding, and showcase your learning to the entire world.
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <input placeholder="Title" style="padding:10px;border-radius:6px;border:1px solid #eef4fb" />
+              <div class="editor" contenteditable="true" aria-label="Article editor">
+                Start writing your article...
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 4: 4SA -->
+          <article class="card" id="card-4sa">
+            <div class="card-head">
+              <div class="title">4SA Method</div>
+              <div class="info">i</div>
+            </div>
+
+            <div class="meta-row">
+              Description: To explore more read more
+            </div>
+
+            <div class="collapse">
+              <div class="row">
+                <div style="font-weight:700">Introduction</div>
+                <button class="small-btn" onclick="toggleMore(this)">See more</button>
+              </div>
+
+              <div style="margin-top:8px;color:#334155">
+                The 4SA Method — How to bring an idea into process? Use a structured approach to experiment, analyze and refine.
+              </div>
+
+              <div style="margin-top:8px" class="editor" contenteditable="true">Thread A — Jot your insights...</div>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <!-- Right rail -->
+      <aside class="left-rail" aria-label="Left controls">
+        <!--<div style="width:40px;height:220px;background:#fff;border-radius:8px;border:1px solid #e8eef6"></div>-->
+        <div class="note-rail">Notice Board</div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h3 id="modalTitle">Submit task</h3>
+      <p>Attach your files, add comments and submit your task for review.</p>
+      <div style="display:flex;gap:8px">
+        <input placeholder="Add note..." style="flex:1;padding:10px;border-radius:8px;border:1px solid #eef4fb" />
+        <button class="small-btn" onclick="alert('Attach file (demo)')">Attach</button>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;gap:8px">
+        <button class="small-btn" id="cancelSubmit">Cancel</button>
+        <button class="submit-btn" id="confirmSubmit">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Journey panel toggle
+    const journeyToggle = document.getElementById('journeyToggle');
+    const journeyPanel = document.getElementById('journeyPanel');
+    journeyToggle.addEventListener('click', ()=> journeyPanel.classList.toggle('show'));
+
+    
+
+    // Modal open/close
+    const submitBtn = document.getElementById('submitTaskBtn');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const cancelSubmit = document.getElementById('cancelSubmit');
+    const confirmSubmit = document.getElementById('confirmSubmit');
+
+    function openModal(){ modalBackdrop.classList.add('show'); modalBackdrop.setAttribute('aria-hidden','false'); }
+    function closeModal(){ modalBackdrop.classList.remove('show'); modalBackdrop.setAttribute('aria-hidden','true'); }
+
+    submitBtn.addEventListener('click', openModal);
+    cancelSubmit.addEventListener('click', closeModal);
+    confirmSubmit.addEventListener('click', () => {
+      alert('Task submitted (demo).');
+      closeModal();
+    });
+
+    modalBackdrop.addEventListener('click', (e) => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+
+    // Play button simulation (open video link)
+    document.getElementById('playVideoBtn').addEventListener('click', () => {
+      window.open('https://www.youtube.com/watch?v=TiMRwri1xJ8', '_blank');
+    });
+
+    // Add sub-thread (demo)
+    function addSubThread(btn){
+      const card = btn.closest('.thread');
+      const box = document.createElement('div');
+      box.className = 'sub-row';
+      box.innerHTML = '<div class="box" contenteditable="true">New Sub Thread</div><div class="box" contenteditable="true">New Interpretation</div>';
+      card.insertBefore(box, card.querySelector('.controls'));
+    }
+
+    // Toggle "see more" in 4SA
+    function toggleMore(btn){
+      const target = btn.closest('.collapse').querySelector('.editor');
+      if (target.style.display === 'none' || !target.style.display) {
+        target.style.display = target.style.display === 'block' ? 'none' : 'block';
+      }
+    }
+
+    // Small UX: close journey panel on click outside
+    document.addEventListener('click', (e) => {
+      if (!journeyPanel.contains(e.target) && !journeyToggle.contains(e.target)) {
+        journeyPanel.classList.remove('show');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        journeyPanel.classList.remove('show');
+      }
+    });
+  </script>
+</body>
+</html>
